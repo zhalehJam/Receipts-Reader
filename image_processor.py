@@ -27,11 +27,26 @@ class ImageProcessor:
         return thresh
     
     def extract_text_from_image(self, image_path: str) -> str:
-        """Extract text from image using OCR"""
+       
         try:
             processed_img = self.preprocess_image(image_path)
-            text = pytesseract.image_to_string(processed_img, lang='nld+eng')
+
+            # Main config: assume block of text, preserve spacing
+            config = "--oem 3 --psm 6 -c preserve_interword_spaces=1"
+            text = pytesseract.image_to_string(
+                processed_img, lang="nld+eng", config=config
+            ).strip()
+
+            # --- Post-processing cleanup ---
+            # Fix common OCR mistakes
+            text = text.replace("’", "'").replace("‘", "'").replace("°", "0")
+            # Fix 3/19 -> 3.19
+            text = re.sub(r"(\d)[/](\d)", r"\1.\2", text)
+            # Fix 1138 -> 11.38
+            text = re.sub(r"(\d)\s+(\d{2})", r"\1.\2", text)
+
             return text
+
         except Exception as e:
             raise Exception(f"Error extracting text from image: {str(e)}")
     
@@ -42,7 +57,7 @@ class ImageProcessor:
         
         # Pattern to match price (numbers with . or , as decimal separator)
         price_pattern = r'(\d+[.,]\d{2})'
-        
+        row_number=0
         for line in lines:
             line = line.strip()
             if not line:
@@ -58,13 +73,14 @@ class ImageProcessor:
                     
                     # Extract item name (text before the price)
                     item_text = re.sub(price_pattern, '', line).strip()
-                    
+                    row_number+=1
                     # Clean up item name
                     item_text = re.sub(r'\s+', ' ', item_text)
                     item_text = item_text.strip('.,- ')
                     
-                    if len(item_text) > 2:  # Avoid very short meaningless text
+                    if len(item_text) > 1:  # Avoid very short meaningless text
                         items.append({
+                            'row_number': row_number,
                             'dutch_name': item_text,
                             'english_name': '',
                             'price': price,

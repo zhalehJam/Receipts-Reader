@@ -158,6 +158,7 @@ class ProcessTab:
         # Add new items
         for item in self.extracted_items:
             self.items_tree.insert('', 'end', values=(
+                item['row_number'],
                 item['dutch_name'],
                 item['english_name'],
                 f"€{item['price']:.2f}",
@@ -192,6 +193,11 @@ class ProcessTab:
     def create_form_fields(self, dialog, item):
         """Create form fields for item dialog"""
         fields = {}
+        
+        ttk.Label(dialog, text="Row Number:").grid(row=0, column=0, sticky='w', padx=5, pady=5)
+        fields['row_number'] = ttk.Entry(dialog, width=40)
+        fields['row_number'].grid(row=0, column=1, padx=5, pady=5)
+        fields['row_number'].insert(0, item['row_number'])
         
         ttk.Label(dialog, text="Dutch Name:").grid(row=0, column=0, sticky='w', padx=5, pady=5)
         fields['dutch'] = ttk.Entry(dialog, width=40)
@@ -231,6 +237,7 @@ class ProcessTab:
         def save_item():
             try:
                 updated_item = {
+                    'row_number': int(fields['row_number'].get()),
                     'dutch_name': fields['dutch'].get(),
                     'english_name': fields['english'].get(),
                     'price': float(fields['price'].get()),
@@ -259,6 +266,7 @@ class ProcessTab:
     def add_manual_item(self):
         """Add item manually"""
         empty_item = {
+            'row_number': 0,
             'dutch_name': '',
             'english_name': '',
             'price': 0.0,

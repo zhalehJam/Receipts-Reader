@@ -35,7 +35,7 @@ class DataManager:
     @staticmethod
     def validate_item_data(item: Dict) -> bool:
         """Validate item data"""
-        required_fields = ['dutch_name', 'english_name', 'price', 'quantity', 'category']
+        required_fields = ['row_number','dutch_name', 'english_name', 'price', 'quantity', 'category']
         
         for field in required_fields:
             if field not in item:

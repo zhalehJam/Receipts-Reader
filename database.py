@@ -34,6 +34,7 @@ class DatabaseManager:
             CREATE TABLE IF NOT EXISTS items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 receipt_id INTEGER,
+                row_number INTEGER,
                 item_name TEXT,
                 item_name_dutch TEXT,
                 price REAL,
@@ -60,9 +61,9 @@ class DatabaseManager:
         # Insert items
         for item in items:
             self.cursor.execute('''
-                INSERT INTO items (receipt_id, item_name, item_name_dutch, price, quantity, category)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (receipt_id, item['english_name'], item['dutch_name'], 
+                INSERT INTO items (receipt_id, row_number, item_name, item_name_dutch, price, quantity, category)
+                VALUES (?,?, ?, ?, ?, ?, ?)
+            ''', (receipt_id, item['row_number'],item['english_name'], item['dutch_name'], 
                   item['price'], item['quantity'], item['category']))
         
         self.conn.commit()
@@ -71,7 +72,7 @@ class DatabaseManager:
     def get_all_receipts_with_items(self) -> List[Tuple]:
         """Get all receipts with their items"""
         query = '''
-            SELECT r.id, r.store_name, r.date, i.item_name, i.price, i.category
+            SELECT r.id, r.store_name, r.date, i.row_number, i.item_name, i.price, i.category
             FROM receipts r
             JOIN items i ON r.id = i.receipt_id
             ORDER BY r.date DESC, r.id
@@ -82,7 +83,7 @@ class DatabaseManager:
     def get_filtered_receipts(self, store_name: str = None, date_from: str = None, date_to: str = None) -> List[Tuple]:
         """Get filtered receipts"""
         query = '''
-            SELECT r.id, r.store_name, r.date, i.item_name, i.price, i.category
+            SELECT r.id, r.store_name, r.date, i.row_number, i.item_name, i.price, i.category
             FROM receipts r
             JOIN items i ON r.id = i.receipt_id
             WHERE 1=1
