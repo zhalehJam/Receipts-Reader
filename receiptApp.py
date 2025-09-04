@@ -244,6 +244,12 @@ class ReceiptProcessor:
         
         return thresh
     
+    def test_preprocess_image(self, image_path):
+        """Test and save the output of preprocess_image"""
+        processed_img = self.preprocess_image(image_path)
+        cv2.imwrite("processed_receipt.png", processed_img)
+        print("Processed image saved as processed_receipt.png")
+    
     def process_receipt(self):
         """Process the loaded receipt image"""
         if not self.current_image_path:
@@ -252,6 +258,7 @@ class ReceiptProcessor:
         
         try:
             # Preprocess image
+            # self.test_preprocess_image(self.current_image_path)
             processed_img = self.preprocess_image(self.current_image_path)
             
             # Perform OCR
