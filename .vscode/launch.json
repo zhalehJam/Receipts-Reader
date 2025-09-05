@@ -15,12 +15,14 @@
 
     "version": "0.2.0",
     "configurations": [
+
+
       {
         "name": "Run Receipt Processor",
         "type": "python",
         "request": "launch",
         "program": "${workspaceFolder}/main.py",
-        "console": "externalTerminal",
+        "console": "integratedTerminal",//externalTerminal",
         "justMyCode": true
       }
     ]

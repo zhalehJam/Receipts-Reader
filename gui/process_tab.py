@@ -80,7 +80,7 @@ class ProcessTab:
         items_frame = ttk.LabelFrame(parent, text="Extracted Items")
         items_frame.pack(fill='both', expand=True, pady=5)
         
-        columns = ('Dutch Name', 'English Name', 'Price', 'Quantity', 'Category')
+        columns = ('row Number','Dutch Name', 'English Name', 'Price', 'Quantity', 'Category')
         self.items_tree = ttk.Treeview(items_frame, columns=columns, show='headings', height=15)
         
         for col in columns:
