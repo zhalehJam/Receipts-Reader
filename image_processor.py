@@ -1,4 +1,5 @@
 # image_processor.py
+from nt import replace
 import cv2
 import pytesseract
 import re
@@ -39,7 +40,7 @@ class ImageProcessor:
 
             # --- Post-processing cleanup ---
             # Fix common OCR mistakes
-            text = text.replace("’", "'").replace("‘", "'").replace("°", "0")
+            text = text.replace("’", "'").replace("‘", "'").replace("°", "0").replace("~","-")
             # Fix 3/19 -> 3.19
             text = re.sub(r"(\d)[/](\d)", r"\1.\2", text)
             # Fix 1138 -> 11.38
@@ -54,17 +55,25 @@ class ImageProcessor:
         """Extract items and prices from OCR text"""
         lines = text.split('\n')
         items = []
-        
+        flag=False
+        temp_name=""
         # Pattern to match price (numbers with . or , as decimal separator)
-        price_pattern = r'(\d+[.,]\d{2})'
+        price_pattern = r'(-?\d+[.,]\d{2})'
         row_number=0
+        
         for line in lines:
             line = line.strip()
+            
             if not line:
+                flag=True
                 continue
-                
+            
+            if not flag:
+                temp_name=""
+            temp_name+=line+" "
             # Look for lines with prices
             price_matches = re.findall(price_pattern, line)
+            
             if price_matches:
                 # Get the price (last match usually)
                 price_str = price_matches[-1].replace(',', '.')
@@ -72,7 +81,7 @@ class ImageProcessor:
                     price = float(price_str)
                     
                     # Extract item name (text before the price)
-                    item_text = re.sub(price_pattern, '', line).strip()
+                    item_text = re.sub(price_pattern, '', temp_name).strip()
                     row_number+=1
                     # Clean up item name
                     item_text = re.sub(r'\s+', ' ', item_text)
@@ -87,7 +96,8 @@ class ImageProcessor:
                             'quantity': 1,
                             'category': 'Uncategorized'
                         })
-                        
+                        temp_name=""
+                        flag=False
                 except ValueError:
                     continue
         
