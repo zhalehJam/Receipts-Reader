@@ -17,6 +17,8 @@ class ImageProcessor:
     def preprocess_image(self, image_path: str):
         """Preprocess image for better OCR results"""
         img = cv2.imread(image_path)
+        if img is None:
+            raise ValueError(f"Could not load image at path: {image_path}")
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
         # Apply denoising
@@ -79,7 +81,7 @@ class ImageProcessor:
                 price_str = price_matches[-1].replace(',', '.')
                 try:
                     price = float(price_str)
-                    
+                
                     # Extract item name (text before the price)
                     item_text = re.sub(price_pattern, '', temp_name).strip()
                     row_number+=1

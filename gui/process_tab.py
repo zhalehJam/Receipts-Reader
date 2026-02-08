@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Optional
 from image_processor import ImageProcessor
 from translator import TranslationService
 from data_manager import DataManager
@@ -45,7 +45,7 @@ class ProcessTab:
                   command=self.export_to_excel).pack(side='left', padx=5)
         
         # Image display
-        self.image_label = ttk.Label(left_frame, text="No image loaded")
+        self.image_label = tk.Label(left_frame, text="No image loaded")
         self.image_label.pack(pady=10)
         
         # Right frame for extracted data
@@ -123,7 +123,7 @@ class ProcessTab:
         photo = ImageTk.PhotoImage(image)
         
         self.image_label.configure(image=photo, text="")
-        self.image_label.image = photo
+        self._photo_image = photo  # Keep a reference to avoid garbage collection
     
     def process_receipt(self):
         """Process the loaded receipt"""
@@ -178,7 +178,7 @@ class ProcessTab:
         
         self.create_item_edit_dialog(item, item_index)
     
-    def create_item_edit_dialog(self, item: Dict, index: int = None):
+    def create_item_edit_dialog(self, item: Dict, index: Optional[int] = None):
         """Create item edit dialog"""
         dialog = tk.Toplevel(self.frame)
         dialog.title("Edit Item" if index is not None else "Add Item")

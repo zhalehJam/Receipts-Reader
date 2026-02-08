@@ -24,10 +24,10 @@ class TranslationService:
         
         return items
     
-    def translate_text(self, text: str, src_lang: str = 'nl', dest_lang: str = 'en') -> str:
+    async def translate_text(self, text: str, src_lang: str = 'nl', dest_lang: str = 'en') -> str:
         """Translate single text"""
         try:
-            result = self.translator.translate(text, src=src_lang, dest=dest_lang)
+            result = await self.translator.translate(text, src=src_lang, dest=dest_lang)
             return result.text
         except Exception as e:
             print(f"Translation error: {e}")
