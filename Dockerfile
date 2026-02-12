@@ -1,25 +1,29 @@
-# For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3-slim
+FROM python:3.12-slim
 
 EXPOSE 8000
 
-# Keeps Python from generating .pyc files in the container
-ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Turns off buffering for easier container logging
-ENV PYTHONUNBUFFERED=1
-
-# Install pip requirements
-COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
+# System deps: Tesseract OCR (+ English). Add other languages if needed.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      tesseract-ocr \
+      tesseract-ocr-eng \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /webapp
-COPY . /webapp
 
-# Creates a non-root user with an explicit UID and adds permission to access the /webapp folder
-# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /webapp
+# Install Python deps (cached layer)
+COPY requirements.txt .
+RUN python -m pip install --upgrade pip \
+    && python -m pip install --no-cache-dir -r requirements.txt
+
+# Copy app code
+COPY . .
+
+# Run as non-root
+RUN adduser --disabled-password --gecos "" --uid 5678 appuser \
+    && chown -R appuser:appuser /webapp
 USER appuser
 
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker", "webapp.main:app"]
