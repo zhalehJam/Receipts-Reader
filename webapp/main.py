@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import os
-
+from image_processor import ImageProcessor
+from translator import TranslationService
 load_dotenv()
 
 app = FastAPI(
@@ -12,8 +13,8 @@ app = FastAPI(
 )
 
 class AddRequest(BaseModel):
-    a: int
-    b: int
+    pictureAddress: str
+    
 
 @app.get("/health")
 def health():
@@ -21,7 +22,17 @@ def health():
 
 @app.post("/add")
 def add(req: AddRequest):
-    return {"result": req.a + req.b}
+    image_processor = ImageProcessor()
+    translator = TranslationService()
+    text = image_processor.extract_text_from_image(req.pictureAddress)        
+    # Extract items and prices
+    extracted_items = image_processor.extract_items_from_text(text)
+    extracted_items =translator.translate_items(extracted_items)
+            
+            # Update display
+    # update_items_display()
+    
+    return {"result": extracted_items}
 
 @app.get("/config-example")
 def config_example():
@@ -30,3 +41,5 @@ def config_example():
     if not api_key:
         raise HTTPException(status_code=500, detail="API_KEY is missing in .env")
     return {"api_key_loaded": True}
+
+
