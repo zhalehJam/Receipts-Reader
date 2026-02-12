@@ -1,4 +1,4 @@
-opencv-python
+opencv-python-headless
 pytesseract
 Pillow
 pandas
@@ -7,4 +7,5 @@ openpyxl
 tk
 fastapi
 uvicorn[standard]
+gunicorn
 python-dotenv

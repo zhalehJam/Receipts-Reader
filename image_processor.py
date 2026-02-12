@@ -1,11 +1,41 @@
 # image_processor.py
-from nt import replace
+# from nt import replace
 import cv2
 import pytesseract
 import re
 from PIL import Image
 from typing import List, Dict
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+import os
+import platform
+import shutil
+
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# # ...
+# pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD", "tesseract")
+
+def configure_tesseract():
+    if env_cmd := os.getenv("TESSERACT_CMD"):
+        pytesseract.pytesseract.tesseract_cmd = env_cmd
+        return
+
+    # 2) Windows default install location fallback
+    if platform.system() == "Windows":
+        win_default = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        if os.path.exists(win_default):
+            pytesseract.pytesseract.tesseract_cmd = win_default
+            return
+
+    if which := shutil.which("tesseract"):
+        pytesseract.pytesseract.tesseract_cmd = which
+        return
+
+    raise RuntimeError(
+        "Tesseract not found. Install it, or set TESSERACT_CMD to its full path."
+    )
+
+configure_tesseract()
+
+
 class ImageProcessor:
     """Handles image processing and OCR operations"""
     

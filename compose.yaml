@@ -1,0 +1,11 @@
+services:
+  receiptsreader:
+    image: receiptsreader
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      TESSERACT_CMD: tesseract
+    ports:
+      - 8000:8000
+ 
